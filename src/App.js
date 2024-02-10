@@ -3,24 +3,57 @@ import './App.css';
 import OriginalImagesGrid from './components/OriginalImagesGrid.js';
 import FilterImgs from './components/FilterImgs.js';
 
-import React, { useState} from 'react';
+import React, { useState, useEffect} from 'react';
 
 function App() {
-  const [filter, setFilter] = useState({group: 0, img: 0, experiment: ""});
+  const [filter, setFilter] = useState({group: 0, img: 0, experiment: "", geometry: "all"});
   const [selectedImages, setSelectedImages] = useState([]);
 
   const handleImageClick = (url) => {
     setSelectedImages([...selectedImages, url]);
   };
+  
+  const updateSelectedImages = (newSelectedImgs) => {
+    setSelectedImages(newSelectedImgs);
+  }
+  /* useEffect(() => {
+    
+    console.log('selectedImages has been updated:', selectedImages);
+  }, [selectedImages]);
+ */
+  const exportSelectedImages = async () => {
+    try {
+      const data = await fetchImageData();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(data);
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href",     dataStr);
+      downloadAnchorNode.setAttribute("download", "selected_images.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    } catch (error) {
+        console.error("Error exporting image data:", error);
+    }
+    };
+  
+  const fetchImageData = async () => {
+    
+    const promises = selectedImages.map(image => {
+      return new Promise((resolve, reject) => {
+          setTimeout(() => {
+              resolve(image);
+          }, 1000);
+      });
+    });
 
-  const exportSelectedImages = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(selectedImages));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", "selected_images.json");
-    document.body.appendChild(downloadAnchorNode);
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
+    try {
+        const imageDataArray = await Promise.all(promises);
+        const jsonData = JSON.stringify(imageDataArray, null, 2);
+        
+        return jsonData;
+    } catch (error) {
+        console.error('Error:', error);
+    }
   };
 
   return (
@@ -34,12 +67,20 @@ function App() {
                         selectedImages={selectedImages}/>
            <button onClick={exportSelectedImages}>Export Selected Images</button>
         </div>
+        
         <div className='app-container'>
-          <OriginalImagesGrid filter={filter} onImageClick={handleImageClick}/>
+          <OriginalImagesGrid filter={filter} selectedImages = {selectedImages} onImageClick={handleImageClick} updateSelectedImages ={updateSelectedImages}/>
+         
+          <div style={{position: 'relative', maxWidth: '200px', maxHeight: '200px', margin: '10px'}}>
+            <p style= {{color:'white', position:'relative', textAlign:'center'}}>Original Image</p>
+            { (filter.group !== 0 && filter.img !== 0) ?
+              <img src={`${process.env.PUBLIC_URL}/images/img_original/img${filter.group}${filter.img}.png`} 
+                    style={{maxWidth: '200px', maxHeight: '200px', margin: '10px'}}></img>
+                : null
+                }
+          </div>
         </div>
-       
-      </div>
+    </div>
   );
 }
-// <img src={`${process.env.PUBLIC_URL}/images/repo-fine-tuning/experiment_english_captions/2023-09-25/index474_group4_img1_seed877423056_cfg7.png`} alt="img" />
 export default App;

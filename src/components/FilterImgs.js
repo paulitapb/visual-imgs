@@ -15,6 +15,9 @@ const FilterImgs = ({filter, setFilter}) => {
         setFilter({ ...filter, experiment: event.target.value });
     }
 
+    const handleSelectGeometry = (event) => {
+        setFilter({ ...filter, geometry: event.target.value });
+    }
     return (
         <div className = 'FilterContainer'>
             <h2>Filtros</h2>
@@ -44,9 +47,23 @@ const FilterImgs = ({filter, setFilter}) => {
             <label>Experiment</label>
             <select onChange={handleSelectExperimentChange}>
                 <option value="0">enter exp</option>
-                <option value="english_captions">english_captions</option>
-                <option value="spanish_captions">spanish_captions</option>
+                <option value="experiment_english_captions">experiment_english_captions</option>
+                <option value='experiment_spanish_captions'>experiment_spanish_captions</option>
+                <option value='experiment_english_captions_textual_inversion'>experiment_english_captions_textual_inversion</option>
+                <option value='experiment_english_captions_LORAV1'>experiment_english_captions_LORAV1</option>
+                <option value='experiment_english_caps_LORA_V1_intento2'>experiment_english_caps_LORA_V1_intento2</option>
+                <option value='experiment_english_captions_textual_inversion_neg_promts'>experiment_english_captions_textual_inversion_neg_promts</option>
+                <option value='dibujos'>dibujos</option>
             </select>
+            </div>
+
+            <div>
+                <label>Geometric</label>
+                <select onChange={handleSelectGeometry}>
+                    <option value="all">all</option>
+                    <option value="0">non geometri</option>
+                    <option value="1">geometric</option>
+                </select>
             </div>
         </div>
     );
